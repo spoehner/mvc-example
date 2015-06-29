@@ -5,6 +5,5 @@ class IndexController implements Controller
 {
 	public function indexAction()
 	{
-		echo 'Hello World';
 	}
 } 
