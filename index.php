@@ -23,7 +23,7 @@ $controllerClassName = '\\Mvc\\Controller\\'.ucfirst($controllerName).'Controlle
 
 // build the action method
 $actionName       = (isset($urlParts[1]) && $urlParts[1] ? $urlParts[1] : 'index');
-$actionMethodName = ucfirst($actionName).'Action';
+$actionMethodName = $actionName.'Action';
 
 try {
 	if (!class_exists($controllerClassName)) {
