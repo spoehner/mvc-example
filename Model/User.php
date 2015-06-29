@@ -3,11 +3,16 @@ namespace Mvc\Model;
 
 class User extends ModelBase
 {
-	public $id, $name, $created;
+	public $name, $created;
 
 	public function getSource()
 	{
 		return 'users';
+	}
+
+	public function beforeCreate()
+	{
+		$this->created = date('Y-m-d H:i:s');
 	}
 }
 

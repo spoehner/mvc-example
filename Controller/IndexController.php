@@ -37,4 +37,24 @@ class IndexController implements Controller
 
 		$this->view->setVars(['name' => $user->name]);
 	}
+
+	public function createUserAction()
+	{
+		$user       = new User();
+		$user->name = 'tester with space';
+		$user->save();
+
+		die('ok '.$user->id);
+	}
+
+	public function updateUserAction()
+	{
+		$uid = (int)(isset($_GET['uid']) ? $_GET['uid'] : '');
+
+		$user       = User::findFirst($uid);
+		$user->name = 'tester updated';
+		$user->save();
+
+		die('ok');
+	}
 }

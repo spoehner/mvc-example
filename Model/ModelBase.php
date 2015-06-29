@@ -5,6 +5,8 @@ abstract class ModelBase
 {
 	private static $pdo;
 
+	public $id;
+
 	/**
 	 * Get the connection. This will open a connection, if does not exist yet.
 	 *
@@ -65,6 +67,61 @@ abstract class ModelBase
 		$stmt->execute($options['bind']);
 
 		return $stmt->fetchAll(\PDO::FETCH_CLASS, get_class($model));
+	}
+
+	/**
+	 * Create/update data.
+	 */
+	public function save()
+	{
+		$table = $this->getSource();
+		/** @var \PDO $pdo */
+		$pdo = $this->getPdo();
+
+		if ($this->id === null) {
+			// new entry
+			if (method_exists($this, 'beforeCreate')) {
+				$this->beforeCreate();
+			}
+
+			if (!$pdo->exec('INSERT INTO `'.$table.'` SET '.implode(',', $this->getFields()))) {
+				throw new \RuntimeException('Could not crate '.get_class($this).': '.$pdo->errorInfo()[2]);
+			}
+			// fill the id
+			$this->id = $pdo->lastInsertId();
+		} else {
+			// update entry
+			if (method_exists($this, 'beforeUpdate')) {
+				$this->beforeUpdate();
+			}
+
+			if ($pdo->exec('UPDATE `'.$table.'` SET '.implode(',', $this->getFields()).' WHERE `id` = '.((int)$this->id)) === false) {
+				throw new \RuntimeException('Could not update '.get_class($this).': '.$pdo->errorInfo()[2]);
+			}
+		}
+	}
+
+	/**
+	 * Build fields data.
+	 *
+	 * @return array
+	 */
+	private function getFields()
+	{
+		$pdo = $this->getPdo();
+
+		$fields = [];
+		foreach ($this as $name => $val) {
+			if ($val === null) {
+				$fields[] = "`$name`=null";
+			} elseif (is_int($val)) {
+				$fields[] = "`$name`=".$val;
+			} else {
+				$fields[] = "`$name`=".$pdo->quote($val);
+			}
+		}
+
+		return $fields;
 	}
 
 	/**
